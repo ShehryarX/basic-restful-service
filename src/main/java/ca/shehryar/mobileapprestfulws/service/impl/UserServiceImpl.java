@@ -5,6 +5,7 @@ import ca.shehryar.mobileapprestfulws.io.repositories.UserRepository;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.Utils;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -47,7 +48,6 @@ public class UserServiceImpl implements UserService {
 
         return returnVal;
     }
-
     @Override
     public UserDto getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
@@ -60,6 +60,21 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userEntity, returnVal);
         return returnVal;
     }
+
+    @Override
+    public UserDto getUserByUserId(String id) {
+        UserDto returnVal = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(id);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(id);
+        }
+
+        BeanUtils.copyProperties(userEntity, returnVal);
+
+        return returnVal;
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

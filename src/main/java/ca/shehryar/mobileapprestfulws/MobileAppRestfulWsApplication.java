@@ -28,4 +28,3 @@ public class MobileAppRestfulWsApplication {
         return new AppProperties();
     }
 }
-w
