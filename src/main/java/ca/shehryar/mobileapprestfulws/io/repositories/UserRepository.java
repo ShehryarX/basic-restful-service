@@ -1,4 +1,4 @@
-package ca.shehryar.mobileapprestfulws;
+package ca.shehryar.mobileapprestfulws.io.repositories;
 
 import ca.shehryar.mobileapprestfulws.io.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;

@@ -1,5 +1,9 @@
 package ca.shehryar.mobileapprestfulws.security;
 
+import ca.shehryar.mobileapprestfulws.SpringApplicationContext;
+import ca.shehryar.mobileapprestfulws.service.UserService;
+import ca.shehryar.mobileapprestfulws.service.impl.UserServiceImpl;
+import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
 import ca.shehryar.mobileapprestfulws.ui.model.request.UserLoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -53,6 +57,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                            .signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET)
                            .compact();
 
+        UserService userService = (UserServiceImpl)SpringApplicationContext.getBean("userServiceImpl");
+        UserDto userDto = userService.getUser(username);
+
         response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+        response.addHeader("User ID", userDto.getUserId());
     }
 }
