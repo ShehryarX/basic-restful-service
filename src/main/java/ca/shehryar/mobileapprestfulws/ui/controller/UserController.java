@@ -4,8 +4,7 @@ import ca.shehryar.mobileapprestfulws.exceptions.UserServiceException;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
 import ca.shehryar.mobileapprestfulws.ui.model.request.UserDetailsRequestModel;
-import ca.shehryar.mobileapprestfulws.ui.model.response.ErrorMessages;
-import ca.shehryar.mobileapprestfulws.ui.model.response.UserRest;
+import ca.shehryar.mobileapprestfulws.ui.model.response.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -68,9 +67,20 @@ public class UserController {
         return returnVal;
     }
 
-    @DeleteMapping
-    public String deleteUser() {
-        return "Delete user";
+    @DeleteMapping(
+        path = "/{id}",
+        consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
+    public OperationStatus deleteUser(@PathVariable String id) {
+        OperationStatus returnVal = new OperationStatus();
+
+        userService.deleteUser(id);
+
+        returnVal.setOperationName(RequestOperationName.DELETE.name());
+        returnVal.setOperationResult(RequestOperationStatus.SUCCESS.name());
+
+        return returnVal;
     }
 
 }
