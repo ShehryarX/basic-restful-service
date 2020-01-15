@@ -1,10 +1,12 @@
 package ca.shehryar.mobileapprestfulws.service.impl;
 
+import ca.shehryar.mobileapprestfulws.exceptions.UserServiceException;
 import ca.shehryar.mobileapprestfulws.io.entity.UserEntity;
 import ca.shehryar.mobileapprestfulws.io.repositories.UserRepository;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.Utils;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
+import ca.shehryar.mobileapprestfulws.ui.model.response.ErrorMessages;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +77,24 @@ public class UserServiceImpl implements UserService {
         return returnVal;
     }
 
+    @Override
+    public UserDto updateUser(String id, UserDto user) {
+        UserEntity userEntity = userRepository.findByUserId(id);
+
+        if (userEntity == null) {
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+
+        UserEntity updatedUser = userRepository.save(userEntity);
+
+        UserDto returnVal = new UserDto();
+        BeanUtils.copyProperties(updatedUser, returnVal);
+
+        return returnVal;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
