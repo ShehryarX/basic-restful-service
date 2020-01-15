@@ -25,13 +25,9 @@ public class UserController {
         produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
     )
     public List<UserRest> getUsers(
-        @RequestParam(value = "page", defaultValue = "1") int page,
+        @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "limit", defaultValue = "25") int limit
     ) {
-        if (page > 0) {
-            page -= 1;
-        }
-
         List<UserRest> returnVal = new ArrayList<>();
 
         List<UserDto> users = userService.getUsers(page, limit);
