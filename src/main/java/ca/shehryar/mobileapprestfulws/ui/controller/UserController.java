@@ -1,12 +1,14 @@
 package ca.shehryar.mobileapprestfulws.ui.controller;
 
+import ca.shehryar.mobileapprestfulws.exceptions.UserServiceException;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
 import ca.shehryar.mobileapprestfulws.ui.model.request.UserDetailsRequestModel;
+import ca.shehryar.mobileapprestfulws.ui.model.response.ErrorMessages;
 import ca.shehryar.mobileapprestfulws.ui.model.response.UserRest;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +18,10 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(
+        path = "/{id}",
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
     public UserRest getUser(@PathVariable String id) {
         UserRest returnVal = new UserRest();
 
@@ -26,9 +31,16 @@ public class UserController {
         return returnVal;
     }
 
-    @PostMapping
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+    @PostMapping(
+        consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
         UserRest returnVal = new UserRest();
+
+        if (userDetails.getFirstName().isEmpty()) {
+            throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+        }
 
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(userDetails, userDto);
