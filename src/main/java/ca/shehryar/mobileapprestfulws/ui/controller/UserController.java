@@ -5,10 +5,14 @@ import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
 import ca.shehryar.mobileapprestfulws.ui.model.request.UserDetailsRequestModel;
 import ca.shehryar.mobileapprestfulws.ui.model.response.*;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("users")
@@ -16,6 +20,26 @@ public class UserController {
 
     @Autowired
     UserService userService;
+
+    @GetMapping(
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
+    public List<UserRest> getUsers(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "limit", defaultValue = "25") int limit
+    ) {
+        List<UserRest> returnVal = new ArrayList<>();
+
+        List<UserDto> users = userService.getUsers(page, limit);
+
+        for (UserDto userDto : users) {
+            UserRest userModel = new UserRest();
+            BeanUtils.copyProperties(userDto, userModel);
+            returnVal.add(userModel);
+        }
+
+        return returnVal;
+    }
 
     @GetMapping(
         path = "/{id}",
