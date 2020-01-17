@@ -120,7 +120,7 @@ public class UserController {
 
     @GetMapping(
         path = "/{id}/addresses",
-        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "application/hal+json" }
     )
     public List<AddressRest> getUserAddresses(@PathVariable String id) {
         List <AddressRest> returnVal = new ArrayList<>();
@@ -147,7 +147,7 @@ public class UserController {
 
     @GetMapping(
         path = "/{userId}/addresses/{addressId}",
-        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "application/hal+json" }
     )
     public AddressRest getUserAddress(@PathVariable String userId, @PathVariable String addressId) {
         AddressDto addressDto = addressService.getAddress(addressId);
