@@ -5,9 +5,11 @@ import ca.shehryar.mobileapprestfulws.io.entity.UserEntity;
 import ca.shehryar.mobileapprestfulws.io.repositories.UserRepository;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.Utils;
+import ca.shehryar.mobileapprestfulws.shared.dto.AddressDto;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
 import ca.shehryar.mobileapprestfulws.ui.model.response.ErrorMessages;
 import com.fasterxml.jackson.databind.util.BeanUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,17 +42,25 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Record already exists");
         }
 
+        // generate alphanum id for each address
+        for (int i = 0; i < user.getAddresses().size(); i++) {
+            AddressDto address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, address);
+        }
+
         UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        ModelMapper modelMapper = new ModelMapper();
+
+        userEntity = modelMapper.map(user, UserEntity.class);
 
         String generatedUserId = utils.generateUserId(30);
         userEntity.setUserId(generatedUserId);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         UserEntity storedDetails = userRepository.save(userEntity);
-
-        UserDto returnVal = new UserDto();
-        BeanUtils.copyProperties(storedDetails, returnVal);
+        UserDto returnVal = modelMapper.map(storedDetails, UserDto.class);
 
         return returnVal;
     }
