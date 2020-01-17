@@ -57,7 +57,7 @@ public class UserController {
         consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
         produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
     )
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
         UserRest returnVal = new UserRest();
 
         if (userDetails.getFirstName().isEmpty()) {
