@@ -138,6 +138,8 @@ public class UserServiceImpl implements UserService {
         return returnVal;
     }
 
+
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(email);

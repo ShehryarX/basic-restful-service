@@ -115,8 +115,8 @@ public class UserController {
     }
 
     @GetMapping(
-            path = "/{id}/addresses",
-            produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+        path = "/{id}/addresses",
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
     )
     public List<AddressRest> getUserAddresses(@PathVariable String id) {
         List <AddressRest> returnVal = new ArrayList<>();
@@ -128,6 +128,19 @@ public class UserController {
             Type listType = new TypeToken<List<AddressRest>>(){}.getType();
             returnVal = modelMapper.map(addressesDto, listType);
         }
+
+        return returnVal;
+    }
+
+    @GetMapping(
+        path = "/{id}/addresses/{addressId}",
+        produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
+    public AddressRest getUserAddress(@PathVariable String id, @PathVariable String addressId) {
+        AddressDto addressDto = addressService.getAddress(addressId);
+
+        ModelMapper modelMapper = new ModelMapper();
+        AddressRest returnVal = modelMapper.map(addressDto, AddressRest.class);
 
         return returnVal;
     }

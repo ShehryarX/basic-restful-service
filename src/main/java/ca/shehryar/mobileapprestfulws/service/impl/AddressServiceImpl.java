@@ -8,10 +8,12 @@ import ca.shehryar.mobileapprestfulws.service.AddressService;
 import ca.shehryar.mobileapprestfulws.shared.dto.AddressDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class AddressServiceImpl implements AddressService {
 
     @Autowired
@@ -35,6 +37,19 @@ public class AddressServiceImpl implements AddressService {
 
         for (AddressEntity addressEntity : addresses) {
             returnVal.add(modelMapper.map(addressEntity, AddressDto.class));
+        }
+
+        return returnVal;
+    }
+
+    @Override
+    public AddressDto getAddress(String addressId) {
+        AddressDto returnVal = null;
+
+        AddressEntity addressEntity = addressRepository.findByAddressId(addressId);
+
+        if (addressEntity != null) {
+            returnVal = new ModelMapper().map(addressEntity, AddressDto.class);
         }
 
         return returnVal;
