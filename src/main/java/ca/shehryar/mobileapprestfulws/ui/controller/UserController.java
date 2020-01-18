@@ -5,6 +5,7 @@ import ca.shehryar.mobileapprestfulws.service.AddressService;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.dto.AddressDto;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
+import ca.shehryar.mobileapprestfulws.ui.model.request.PasswordResetModel;
 import ca.shehryar.mobileapprestfulws.ui.model.request.PasswordResetRequestModel;
 import ca.shehryar.mobileapprestfulws.ui.model.request.UserDetailsRequestModel;
 import ca.shehryar.mobileapprestfulws.ui.model.response.*;
@@ -204,6 +205,26 @@ public class UserController {
         boolean operation = userService.requestPasswordReset(body.getEmail());
 
         returnVal.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+        returnVal.setOperationResult(RequestOperationStatus.FAILED.name());
+
+        if (operation) {
+            returnVal.setOperationResult(RequestOperationStatus.SUCCESS.name());
+        }
+
+        return returnVal;
+    }
+
+    @PostMapping(
+            path = "/password-reset",
+            consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+            produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
+    public OperationStatus resetPassword(@RequestBody PasswordResetModel body) {
+        OperationStatus returnVal = new OperationStatus();
+
+        boolean operation = userService.resetPassword(body.getToken(), body.getPassword());
+
+        returnVal.setOperationName(RequestOperationName.PASSWORD_RESET.name());
         returnVal.setOperationResult(RequestOperationStatus.FAILED.name());
 
         if (operation) {
