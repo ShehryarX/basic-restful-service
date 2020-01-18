@@ -1,7 +1,9 @@
 package ca.shehryar.mobileapprestfulws.service.impl;
 
 import ca.shehryar.mobileapprestfulws.exceptions.UserServiceException;
+import ca.shehryar.mobileapprestfulws.io.entity.PasswordResetTokenEntity;
 import ca.shehryar.mobileapprestfulws.io.entity.UserEntity;
+import ca.shehryar.mobileapprestfulws.io.repositories.PasswordResetTokenRepository;
 import ca.shehryar.mobileapprestfulws.io.repositories.UserRepository;
 import ca.shehryar.mobileapprestfulws.service.UserService;
 import ca.shehryar.mobileapprestfulws.shared.AmazonSES;
@@ -36,6 +38,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    PasswordResetTokenRepository passwordResetTokenRepository;
+
     @Override
     public UserDto createUser(UserDto user) {
         if (userRepository.findByEmail(user.getEmail()) != null) {
@@ -61,7 +66,7 @@ public class UserServiceImpl implements UserService {
         UserEntity storedDetails = userRepository.save(userEntity);
         UserDto returnVal = modelMapper.map(storedDetails, UserDto.class);
 
-        new AmazonSES().verifyEmail(returnVal);
+//        new AmazonSES().verifyEmail(returnVal);
 
         return returnVal;
     }
@@ -157,6 +162,34 @@ public class UserServiceImpl implements UserService {
         }
 
         return returnVal;
+    }
+
+    @Override
+    public boolean requestPasswordReset(String email) {
+        boolean returnVal = false;
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if (userEntity == null) {
+            return returnVal;
+        }
+
+        String token = Utils.generatePasswordResetToken(userEntity.getUserId());
+
+        PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+        passwordResetTokenEntity.setToken(token);
+        passwordResetTokenEntity.setUserDetails(userEntity);
+        passwordResetTokenRepository.save(passwordResetTokenEntity);
+
+        returnVal = true;
+
+//        returnVal = new AmazonSES().sendPasswordResetRequest(
+//                userEntity.getFirstName(),
+//                userEntity.getEmail(),
+//                token
+//        );
+
+        return returnVal;
+
     }
 
     @Override
