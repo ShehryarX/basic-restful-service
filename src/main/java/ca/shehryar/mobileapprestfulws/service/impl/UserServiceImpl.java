@@ -4,6 +4,7 @@ import ca.shehryar.mobileapprestfulws.exceptions.UserServiceException;
 import ca.shehryar.mobileapprestfulws.io.entity.UserEntity;
 import ca.shehryar.mobileapprestfulws.io.repositories.UserRepository;
 import ca.shehryar.mobileapprestfulws.service.UserService;
+import ca.shehryar.mobileapprestfulws.shared.AmazonSES;
 import ca.shehryar.mobileapprestfulws.shared.Utils;
 import ca.shehryar.mobileapprestfulws.shared.dto.AddressDto;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
@@ -59,6 +60,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity storedDetails = userRepository.save(userEntity);
         UserDto returnVal = modelMapper.map(storedDetails, UserDto.class);
+
+        new AmazonSES().verifyEmail(returnVal);
 
         return returnVal;
     }
