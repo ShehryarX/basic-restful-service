@@ -1,14 +1,31 @@
 package ca.shehryar.mobileapprestfulws.shared;
 
+import ca.shehryar.mobileapprestfulws.security.SecurityConstants;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
 @Component
 public class Utils {
     private final Random RANDOM = new SecureRandom();
     private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    public static boolean hasTokenExpired(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SecurityConstants.getTokenSecret())
+                .parseClaimsJws(token)
+                .getBody();
+
+        Date tokenExpirationDate = claims.getExpiration();
+        Date todayDate = new Date();
+
+        return tokenExpirationDate.before(todayDate);
+    }
 
     public String generateUserId(int length) {
         return generateRandomString(length);
@@ -24,5 +41,14 @@ public class Utils {
         }
 
         return returnVal.toString();
+    }
+
+    public String generateEmailVerificationToken(String generatedUserId) {
+        String token = Jwts.builder()
+                .setSubject(generatedUserId)
+                .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_DATE))
+                .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+                .compact();
+        return token;
     }
 }

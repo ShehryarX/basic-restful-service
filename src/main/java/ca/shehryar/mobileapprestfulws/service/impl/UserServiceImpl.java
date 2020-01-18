@@ -8,7 +8,6 @@ import ca.shehryar.mobileapprestfulws.shared.Utils;
 import ca.shehryar.mobileapprestfulws.shared.dto.AddressDto;
 import ca.shehryar.mobileapprestfulws.shared.dto.UserDto;
 import ca.shehryar.mobileapprestfulws.ui.model.response.ErrorMessages;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,6 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Record already exists");
         }
 
-        // generate alphanum id for each address
         for (int i = 0; i < user.getAddresses().size(); i++) {
             AddressDto address = user.getAddresses().get(i);
             address.setUserDetails(user);
@@ -50,14 +48,14 @@ public class UserServiceImpl implements UserService {
             user.getAddresses().set(i, address);
         }
 
-        UserEntity userEntity = new UserEntity();
         ModelMapper modelMapper = new ModelMapper();
-
-        userEntity = modelMapper.map(user, UserEntity.class);
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String generatedUserId = utils.generateUserId(30);
         userEntity.setUserId(generatedUserId);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userEntity.setEmailVerificationStatus(false);
+        userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(generatedUserId));
 
         UserEntity storedDetails = userRepository.save(userEntity);
         UserDto returnVal = modelMapper.map(storedDetails, UserDto.class);
@@ -138,7 +136,25 @@ public class UserServiceImpl implements UserService {
         return returnVal;
     }
 
+    @Override
+    public boolean verifyEmailToken(String token) {
+        boolean returnVal = false;
 
+        UserEntity userEntity = userRepository.findUserByEmailVerificationToken(token);
+
+        if (userEntity != null) {
+            boolean hasTokenExpired = Utils.hasTokenExpired(token);
+
+            if (!hasTokenExpired) {
+                userEntity.setEmailVerificationToken(null);
+                userEntity.setEmailVerificationStatus(Boolean.TRUE);
+                userRepository.save(userEntity);
+                returnVal = true;
+            }
+        }
+
+        return returnVal;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -148,6 +164,9 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException(email);
         }
 
-        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+        return new User(
+            userEntity.getEmail(), userEntity.getEncryptedPassword(), userEntity.getEmailVerificationStatus(),
+            true, true, true, new ArrayList<>()
+        );
     }
 }
