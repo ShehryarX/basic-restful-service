@@ -5,7 +5,9 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AmazonSES {
     final String FROM = "xshehryar@gmail.com";
     final String SUBJECT = "One last step to complete your registration";
